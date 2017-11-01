@@ -13,7 +13,10 @@ Slack Bot
 1. Integrate Travis CI to build and test the project
 
 ## Design
+EnigmaBot uses the [jSlack](https://github.com/seratch/jslack) library for Slack integration.
 
 ## Build
 
 ## Test
+ 1. Create Slack channel for testing, e.g., "bot-testing"
+ 1. Invite bot to channel, `/invite @enigma-bot`

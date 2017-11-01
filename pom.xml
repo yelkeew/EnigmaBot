@@ -4,6 +4,21 @@
   <artifactId>enigmabot</artifactId>
   <version>0.0.1</version>
   <dependencies>
+	<dependency>
+	  <groupId>javax.websocket</groupId>
+	  <artifactId>javax.websocket-api</artifactId>
+	  <version>1.1</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.glassfish.tyrus.bundles</groupId>
+	  <artifactId>tyrus-standalone-client</artifactId>
+	  <version>1.13.1</version>
+	</dependency>	
+	<dependency>
+	  <groupId>com.github.seratch</groupId>
+	  <artifactId>jslack</artifactId>
+	  <version>1.0.14</version>
+	</dependency>
   </dependencies>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -15,6 +30,20 @@
           <source>1.8</source>
           <target>1.8</target>
         </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.0.0-M1</version>
+        <executions>
+          <execution>
+            <id>resource-bundles</id>
+            <phase>package</phase>
+            <goals>
+              <goal>resource-bundle</goal>
+              <goal>test-resource-bundle</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
