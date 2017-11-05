@@ -1,1 +1,4 @@
 .api-token
+.weather-token
+*.class
+target/*

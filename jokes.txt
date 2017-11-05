@@ -1,0 +1,22 @@
+# Format for jokes:
+#  * One joke per line
+#  * One or more phrases per joke
+#  * Pipe character, '|', separating phrases within a joke
+#  * Lines beginning with hash character, '#' are ignored
+#  * Blank lines are ok
+
+Why did the chicken cross the road? | Because his friends kept egging him on.
+
+What do you call a dolphin on a mission? | A porpoise with a purpose.
+
+My doctor put me on a new prescription. | It's an anti-psychotic combined with an anti-hystamine. | It keeps the voices in my head from sneezing.
+
+What's brown and sticky? | A stick.
+
+Your code's enough of a joke.
+
+Looked in the mirror lately? | You're pretty funny looking.
+
+Why did the hipster burn his mouth?  | He ate the pizza before it was cool.
+
+What do you get when you cross a dyslexic, an insomniac, and an agnostic? | Someone who lays awake at night wondering if there is a dog.

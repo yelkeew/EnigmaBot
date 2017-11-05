@@ -9,37 +9,73 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.websocket.DeploymentException;
+
+import org.reflections.Reflections;
 
 import com.github.seratch.jslack.Slack;
 import com.github.seratch.jslack.api.rtm.RTMClient;
 import com.github.seratch.jslack.api.rtm.RTMMessageHandler;
+import com.instavector.slackbot_command.ISlackBotCommand;
+import com.instavector.slackmessage.SlackMessage;
+import com.instavector.slackmessage.SlackMessageFactory;
 
 
 /**
  * A simple Slack Bot that implements a few commands.
  */
-public class EnigmaBot {
+public class EnigmaBot implements ISlackBotCommand {
 
 	private static final String API_PROPERTIES_FILE = ".api-token";
+
+	private static final String COMMANDS_PACKAGE = "com.instavector.slackbot_command";
 
 	private boolean initComplete = false;
 
 	private String apiToken = null;
 
+	private Slack slack = null;
+
 	private RTMClient rtmClient = null;
 
+	private ArrayList<ISlackBotCommand> slackCommands = null;
 
-	public EnigmaBot() {
+	private String botUserId = null;
+
+
+	// Attributes for listing Slack Bot commands
+	private static final String LIST_CMD_NAME = "list";
+
+	private static final String LIST_CMD_DESCRIPTION = "list supported commands";
+
+	private static final String LIST_CMD_PATTERN = "[lL]ist.*";
+
+	private static EnigmaBot instance = null;
+
+	public static EnigmaBot getInstance() {
+		if (null == instance) {
+			instance = new EnigmaBot();
+		}
+		return instance;
+	}
+
+	private EnigmaBot() {
 		if (!loadProperties()) {
+			return;
+		}
+
+		if (!loadCommands()) {
 			return;
 		}
 
 		initComplete = true;
 	}
 
+	// Load parameters from Java properties file
 	private boolean loadProperties() {
 		try {
 			FileInputStream fis = new FileInputStream(new File(API_PROPERTIES_FILE));
@@ -59,20 +95,87 @@ public class EnigmaBot {
 		return true;
 	}
 
+	// Load supported commands from internal package - allows adding commands without requring bot class
+	// to be dependent on specific commands
+	private boolean loadCommands() {
+
+		Reflections reflections = new Reflections(COMMANDS_PACKAGE);
+		slackCommands = new ArrayList<ISlackBotCommand>();
+
+		Set<Class<? extends ISlackBotCommand>> cmdClasses = reflections.getSubTypesOf(ISlackBotCommand.class);
+		for (Class c: cmdClasses) {
+			ISlackBotCommand cmd;
+			try {
+				cmd = (ISlackBotCommand) c.newInstance();
+				slackCommands.add(cmd);
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+				return false;
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+				return false;
+			}
+		}
+
+		slackCommands.add(this);
+
+		return true;
+	}
+
+	boolean isInitComplete() {
+		return initComplete;
+	}
+
+	// Start up the bot
 	public boolean start() {
 
+		if (false == initComplete) {
+			System.err.println("ERROR: couldn't initialize bot, not starting");
+			return false;
+		}
+
 		try {
-			rtmClient = new Slack().rtm(apiToken);
+			slack = new Slack();
+			rtmClient = slack.rtm(apiToken);
 
 			rtmClient.addMessageHandler(new RTMMessageHandler() {
-
 				@Override
-				public void handle(String message) {
-					System.out.println("Got message: " + message);
+				public void handle(String messageContents) {
+					System.out.println(" -> MSG: " + messageContents);
+					SlackMessage msg = SlackMessageFactory.CreateSlackMessageObject(messageContents);
+					if (null == msg) {
+						System.err.println("ERROR: couldn't deserialize Slack message");
+						return;
+					}
 
-					// TODO: convert string to JSON
-					// TODO: examine message type
-					// TODO: process 'type:message' and look up command
+					if (SlackMessage.MSG_TYPE_PRESENCE_CHANGE.equals(msg.getType())) {
+						botUserId = msg.getUser();
+						return;
+					}
+
+					// Only examine actual user messages
+					if (!SlackMessage.MSG_TYPE_MESSAGE.equals(msg.getType())) {
+						return;
+					}
+
+					// Try to match message text against supported commands
+					for (ISlackBotCommand c: slackCommands) {
+						String text = msg.getText();
+						if (null == text) {
+							return;
+						}
+						// Ignore our own messages, in case a response contains text that matches a command pattern
+						if (botUserId.equals(msg.getUser())) {
+							System.out.println("XXX Got my own message");
+							return;
+						}
+						if (text.matches(c.getCommandPattern())) {
+							if (false == c.executeCommand(slack, apiToken, msg)) {
+								System.err.println("ERROR: failed to execute \"" + c.getCommandName() + "\" command");
+							}
+							break;
+						}
+					}
 				}
 			});
 
@@ -86,16 +189,49 @@ public class EnigmaBot {
 			return false;
 		}
 
+		System.out.println(this.getClass().getSimpleName() + " is running");
+
 		return true;
 
 	}
 
-	public void test() {
+	/*
+	 * Methods implementing "list" command - list supported commands
+	 *
+	 * (non-Javadoc)
+	 * @see com.instavector.slackbot_command.ISlackBotCommand#getCommandName()
+	 */
+	@Override
+	public String getCommandName() {
+		return LIST_CMD_NAME;
+	}
+
+	@Override
+	public String getCommandPattern() {
+		return LIST_CMD_PATTERN;
+	}
+
+	@Override
+	public String getCommandDescription() {
+		return LIST_CMD_DESCRIPTION;
+	}
+
+	@Override
+	public boolean executeCommand(Slack slackInstance, String apiToken, SlackMessage message) {
+		StringBuilder sb = new StringBuilder("Here are the commands I support:\n");
+
+		slackCommands.forEach(c -> {
+			sb.append(c.getCommandName() + " - " + c.getCommandDescription() + "\n");
+		});
+		ISlackBotCommand.SendResponse(slackInstance, apiToken, message.getChannel(), sb.toString().trim());
+		return true;
 	}
 
 
+	// Stop the bot
 	public void stop() {
 		try {
+			System.out.println("Stopping...");
 			rtmClient.close();  // calls disconnect()
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -103,26 +239,4 @@ public class EnigmaBot {
 	}
 
 
-	public static void main(String[] args) {
-		System.out.println("OK");
-
-		EnigmaBot bot = new EnigmaBot();
-		if (false == bot.start()) {
-			System.err.println("ERROR: couldn't start bot");
-		}
-
-		for (int i = 0; i < 60; i ++) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-		// TODO: some stuff
-
-		bot.stop();
-
-	}
 }
