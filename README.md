@@ -26,7 +26,7 @@ EnigmaBot uses Maven.  Run `mvn package` to build the project.
     * .weather-token: [Open Weather Map token](http://openweathermap.org/appid), `appId = xxxxxxxxxx`
  1. Add a bot to your Slack channel
  1. Upload the `robot.jpg` file as the bot's avatar
- 1. Run the bot: `java -cp "target\deps\*;target\enigmabot-0.0.1.jar" com.instavector.slackbot.EnigmaBot`
+ 1. Run the bot: `java -cp "target\deps\*;target\enigmabot-0.0.1.jar" com.instavector.slackbot.EnigmaBotMain`
  1. Create Slack channel for testing, e.g., "bot-testing" or direct-message the bot
  1. Invite bot to channel, `/invite @enigma-bot`
  1. Use `list` to see a list of commands supported by the bot
