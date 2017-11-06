@@ -104,6 +104,7 @@ public class WeatherCommand implements ISlackBotCommand {
 			}
 
 			/*
+			   Typical response from Open Weather Map
 			{
 			"coord":{"lon":-76.61,"lat":39.29},
 			"weather":[
@@ -149,7 +150,7 @@ public class WeatherCommand implements ISlackBotCommand {
 			String temp_max = weatherObject.get("main").getAsJsonObject().get("temp_max").getAsString();
 
 			// Response uses unicode char for degree symbol
-			String responseStr = "Today's weather for " + arg + " is " + conditions + " (" + description + "), Temp: " +
+			String responseStr = "Today's weather for *" + arg + "* is " + conditions + " (" + description + "), Temp: " +
 					temp + " \u00b0F, Min Temp: " + temp_min + " \u00b0F, Max Temp: " + temp_max + " \u00b0F";
 
 

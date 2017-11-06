@@ -23,6 +23,9 @@ public interface ISlackBotCommand {
 					.asUser(true)
 					.text(response)
 					.build());
+			if (false == postMessage.isOk()) {
+				return false;
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;

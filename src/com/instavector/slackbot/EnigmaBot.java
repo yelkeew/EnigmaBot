@@ -148,12 +148,14 @@ public class EnigmaBot implements ISlackBotCommand {
 						return;
 					}
 
+					// Presence change message appears to be bot coming/going; collect user ID to avoid
+					// reacting to our own responses
 					if (SlackMessage.MSG_TYPE_PRESENCE_CHANGE.equals(msg.getType())) {
 						botUserId = msg.getUser();
 						return;
 					}
 
-					// Only examine actual user messages
+					// Only examine actual user messages, not hello, presence change, etc.
 					if (!SlackMessage.MSG_TYPE_MESSAGE.equals(msg.getType())) {
 						return;
 					}
@@ -166,7 +168,6 @@ public class EnigmaBot implements ISlackBotCommand {
 						}
 						// Ignore our own messages, in case a response contains text that matches a command pattern
 						if (botUserId.equals(msg.getUser())) {
-							System.out.println("XXX Got my own message");
 							return;
 						}
 						if (text.matches(c.getCommandPattern())) {
