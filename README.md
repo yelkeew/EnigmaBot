@@ -35,3 +35,4 @@ EnigmaBot uses Maven.  Run `mvn package` to build the project.
 ## TODO
 1. Better regular expression handling for command arguments
 1. Detect missing/incorrect command tokens on initialization, warn user, and exclude command from supported list
+1. JavaDoc comments

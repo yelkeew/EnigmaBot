@@ -11,6 +11,8 @@ public class SlackMessage {
 	private String content;
 	private String channel;
 	private String user;
+	@SerializedName("bot_id")
+	private String botId;
 	private String text;
 	private String launchUri;
 	private String avatarImage;
@@ -97,6 +99,14 @@ public class SlackMessage {
 
 	public void setUser(String user) {
 		this.user = user;
+	}
+
+	public String getBotId() {
+		return botId;
+	}
+
+	public void setBotId(String botId) {
+		this.botId = botId;
 	}
 
 	public String getText() {

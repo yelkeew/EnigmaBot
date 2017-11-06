@@ -6,7 +6,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
@@ -89,6 +88,7 @@ public class PictureCommand implements ISlackBotCommand {
 		SearchParameters searchParameters = new SearchParameters();
 		String[] argParts = arg.split(" ");
 		searchParameters.setTags(argParts);
+		searchParameters.setSafeSearch(Flickr.SAFETYLEVEL_SAFE);  // No naughty pictures
 
 		File photoFile = null;
 		try {
@@ -105,7 +105,6 @@ public class PictureCommand implements ISlackBotCommand {
 
 			// Pick a random picture from the returned list
 			Photo photo = photoList.get((new Random()).nextInt(photoList.size()));
-			Collection<Size> sizes = photo.getSizes();
 
 			// Download and save off the image
 			BufferedImage img = flickr.getPhotosInterface().getImage(photo, Size.MEDIUM);
@@ -121,6 +120,7 @@ public class PictureCommand implements ISlackBotCommand {
 			return false;
 		}
 
+		// Upload the image to the slack channel
 		List<String> chList = new ArrayList<String>();
 		chList.add(message.getChannel());
 		try {

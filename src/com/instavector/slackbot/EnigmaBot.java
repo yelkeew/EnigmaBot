@@ -10,8 +10,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.websocket.DeploymentException;
 
@@ -95,18 +97,15 @@ public class EnigmaBot implements ISlackBotCommand {
 		return true;
 	}
 
-	// Load supported commands from internal package - allows adding commands without requring bot class
+	// Load supported commands from internal package - allows adding commands without requiring bot class
 	// to be dependent on specific commands
 	private boolean loadCommands() {
 
-		Reflections reflections = new Reflections(COMMANDS_PACKAGE);
 		slackCommands = new ArrayList<ISlackBotCommand>();
 
-		Set<Class<? extends ISlackBotCommand>> cmdClasses = reflections.getSubTypesOf(ISlackBotCommand.class);
-		for (Class c: cmdClasses) {
-			ISlackBotCommand cmd;
+		for (Class<? extends ISlackBotCommand> c: (new Reflections(COMMANDS_PACKAGE)).getSubTypesOf(ISlackBotCommand.class)) {
 			try {
-				cmd = (ISlackBotCommand) c.newInstance();
+				ISlackBotCommand cmd = c.newInstance();
 				slackCommands.add(cmd);
 			} catch (InstantiationException e) {
 				e.printStackTrace();
@@ -196,6 +195,16 @@ public class EnigmaBot implements ISlackBotCommand {
 
 	}
 
+	// Stop the bot
+	public void stop() {
+		try {
+			System.out.println("Stopping...");
+			rtmClient.close();  // calls disconnect()
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	/*
 	 * Methods implementing "list" command - list supported commands
 	 *
@@ -217,27 +226,30 @@ public class EnigmaBot implements ISlackBotCommand {
 		return LIST_CMD_DESCRIPTION;
 	}
 
+	private class Command {
+		String name;
+		String description;
+
+		public Command(String name, String description) {
+			this.name = name;
+			this.description = description;
+		}
+	}
+
 	@Override
 	public boolean executeCommand(Slack slackInstance, String apiToken, SlackMessage message) {
 		StringBuilder sb = new StringBuilder("Here are the commands I support:\n");
 
-		slackCommands.forEach(c -> {
-			sb.append(c.getCommandName() + " - " + c.getCommandDescription() + "\n");
-		});
+		// Sort commands by name, alphabetically
+		List<Command> cmdList = new ArrayList<Command>();
+		slackCommands.forEach(c -> {cmdList.add(new Command(c.getCommandName(), c.getCommandDescription()));});
+		Collections.sort(cmdList, new Comparator<Command>() {
+			@Override
+			public int compare(Command cmd0, Command cmd1) {
+				return cmd0.name.compareTo(cmd1.name);
+			}});
+		cmdList.forEach(c -> { sb.append(c.name + " - " + c.description + "\n");});
 		ISlackBotCommand.SendResponse(slackInstance, apiToken, message.getChannel(), sb.toString().trim());
 		return true;
 	}
-
-
-	// Stop the bot
-	public void stop() {
-		try {
-			System.out.println("Stopping...");
-			rtmClient.close();  // calls disconnect()
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-
 }
