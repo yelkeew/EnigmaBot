@@ -19,7 +19,7 @@ public class JokeCommand implements ISlackBotCommand {
 
 	private static final String CMD_DESCRIPTION = "tell me a joke";
 
-	private static final String CMD_PATTERN = ".*[Jj]oke.*";
+	private static final String CMD_PATTERN = "[Jj]oke.*";
 
 	private static final String JOKE_PHRASE_REGEX = "\\|";
 

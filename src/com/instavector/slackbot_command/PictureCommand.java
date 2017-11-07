@@ -27,9 +27,9 @@ public class PictureCommand implements ISlackBotCommand {
 
 	private static final String CMD_NAME = "picture";
 
-	private static final String CMD_DESCRIPTION = "get a picture from Flickr";
+	private static final String CMD_DESCRIPTION = "get a tagged picture from Flickr";
 
-	private static final String CMD_PATTERN = ".*[Pp]icture.*";
+	private static final String CMD_PATTERN = "[Pp]icture.*";
 
 	private static final String FLICKR_PROPERTIES_FILE = ".flickr-token";
 

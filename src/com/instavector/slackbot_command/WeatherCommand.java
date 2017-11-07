@@ -24,7 +24,7 @@ public class WeatherCommand implements ISlackBotCommand {
 
 	private static final String CMD_DESCRIPTION = "get the weather forecaset for zip code or city name";
 
-	private static final String CMD_PATTERN = ".*[Ww]eather.*";
+	private static final String CMD_PATTERN = "[Ww]eather.*";
 
 	private static final String WEATHER_URI_CITY = "http://api.openweathermap.org/data/2.5/weather?q=";
 

@@ -16,7 +16,7 @@ public class CveCommand implements ISlackBotCommand {
 
 	private static final String CMD_DESCRIPTION = "search recent CVEs";
 
-	private static final String CMD_PATTERN = ".*[Cc][Vv][Ee].*";
+	private static final String CMD_PATTERN = "[Cc][Vv][Ee].*";
 
 	private static final String CVE_ZIP_URI = "https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-recent.json.zip";
 
