@@ -34,12 +34,16 @@ public class WeatherCommand implements ISlackBotCommand {
 
 	private static String appId = null;
 
+	private boolean initComplete = false;
+
 	public WeatherCommand() {
 		try {
 			FileInputStream fis = new FileInputStream(new File(WEATHER_PROPERTIES_FILE));
 			Properties props = new Properties();
 			props.load(fis);
 			appId = props.getProperty("appId");
+
+			initComplete = true;
 		} catch (FileNotFoundException e) {
 			System.err.println("ERROR: properties file '" + WEATHER_PROPERTIES_FILE + "' doesn't exist");
 			e.printStackTrace();
@@ -65,7 +69,17 @@ public class WeatherCommand implements ISlackBotCommand {
 	}
 
 	@Override
+	public boolean isInitComplete() {
+		return initComplete;
+	}
+
+	@Override
 	public boolean executeCommand(Slack slackInstance, String apiToken, SlackMessage message) {
+
+		if (false == initComplete) {
+			return false;
+		}
+
 		String cmdSubstr = "eather ";  // remove initial char to resolve potential case sensitivity problem
 		String text = message.getText();
 		String arg = null;

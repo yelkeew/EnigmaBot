@@ -15,6 +15,8 @@ public interface ISlackBotCommand {
 
 	public abstract boolean executeCommand(Slack slackInstance, String apiToken, SlackMessage message);
 
+	public abstract boolean isInitComplete();
+
 	public static boolean SendResponse(Slack slackInstance, String apiToken, String channel, String response) {
 		try {
 			ChatPostMessageResponse postMessage = slackInstance.methods().chatPostMessage(ChatPostMessageRequest.builder()

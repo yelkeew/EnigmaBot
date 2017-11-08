@@ -38,10 +38,13 @@ public class EnigmaBot implements ISlackBotCommand {
 
 	private boolean initComplete = false;
 
+	// Slack API token
 	private String apiToken = null;
 
+	// Slack object instance - our main connection for integrating with Slack
 	private Slack slack = null;
 
+	// Slack Real Time Messaging (RTM) client
 	private RTMClient rtmClient = null;
 
 	private ArrayList<ISlackBotCommand> slackCommands = null;
@@ -56,6 +59,8 @@ public class EnigmaBot implements ISlackBotCommand {
 
 	private static final String LIST_CMD_PATTERN = "[lL]ist.*";
 
+	List<Command> cmdList  = null;
+
 	private static EnigmaBot instance = null;
 
 	public static EnigmaBot getInstance() {
@@ -66,6 +71,8 @@ public class EnigmaBot implements ISlackBotCommand {
 	}
 
 	private EnigmaBot() {
+		cmdList = new ArrayList<Command>();
+
 		if (!loadProperties()) {
 			return;
 		}
@@ -97,32 +104,50 @@ public class EnigmaBot implements ISlackBotCommand {
 		return true;
 	}
 
+	private class Command {
+		String name;
+		String description;
+
+		public Command(String name, String description) {
+			this.name = name;
+			this.description = description;
+		}
+	}
+
 	// Load supported commands from internal package - allows adding commands without requiring bot class
 	// to be dependent on specific commands
 	private boolean loadCommands() {
 
 		slackCommands = new ArrayList<ISlackBotCommand>();
 
+
 		for (Class<? extends ISlackBotCommand> c: (new Reflections(COMMANDS_PACKAGE)).getSubTypesOf(ISlackBotCommand.class)) {
 			try {
+				System.out.println("Initializing cmd: " + c.getSimpleName());
 				ISlackBotCommand cmd = c.newInstance();
-				slackCommands.add(cmd);
-			} catch (InstantiationException e) {
-				e.printStackTrace();
-				return false;
-			} catch (IllegalAccessException e) {
+				if (true == cmd.isInitComplete()) {
+					slackCommands.add(cmd);
+				} else {
+					System.err.println("ERROR: failed to initialize " + c.getSimpleName());
+				}
+			} catch (Exception e) {
 				e.printStackTrace();
 				return false;
 			}
 		}
 
+		// Add this class to the list to support the "list" command
 		slackCommands.add(this);
 
-		return true;
-	}
+		// Build a sorted list of commands the bot supports
+		slackCommands.forEach(c -> {cmdList.add(new Command(c.getCommandName(), c.getCommandDescription()));});
+		Collections.sort(cmdList, new Comparator<Command>() {
+			@Override
+			public int compare(Command cmd0, Command cmd1) {
+				return cmd0.name.compareTo(cmd1.name);
+			}});
 
-	boolean isInitComplete() {
-		return initComplete;
+		return true;
 	}
 
 	// Start up the bot
@@ -137,6 +162,7 @@ public class EnigmaBot implements ISlackBotCommand {
 			slack = new Slack();
 			rtmClient = slack.rtm(apiToken);
 
+			// The main processing loop for the bot - receives a message from Slack, parses, and executes
 			rtmClient.addMessageHandler(new RTMMessageHandler() {
 				@Override
 				public void handle(String messageContents) {
@@ -226,30 +252,18 @@ public class EnigmaBot implements ISlackBotCommand {
 		return LIST_CMD_DESCRIPTION;
 	}
 
-	private class Command {
-		String name;
-		String description;
-
-		public Command(String name, String description) {
-			this.name = name;
-			this.description = description;
-		}
+	@Override
+	public boolean isInitComplete() {
+		return initComplete;
 	}
 
 	@Override
 	public boolean executeCommand(Slack slackInstance, String apiToken, SlackMessage message) {
 		StringBuilder sb = new StringBuilder("Here are the commands I support:\n");
 
-		// Sort commands by name, alphabetically
-		List<Command> cmdList = new ArrayList<Command>();
-		slackCommands.forEach(c -> {cmdList.add(new Command(c.getCommandName(), c.getCommandDescription()));});
-		Collections.sort(cmdList, new Comparator<Command>() {
-			@Override
-			public int compare(Command cmd0, Command cmd1) {
-				return cmd0.name.compareTo(cmd1.name);
-			}});
 		cmdList.forEach(c -> { sb.append(c.name + " - " + c.description + "\n");});
 		ISlackBotCommand.SendResponse(slackInstance, apiToken, message.getChannel(), sb.toString().trim());
+
 		return true;
 	}
 }

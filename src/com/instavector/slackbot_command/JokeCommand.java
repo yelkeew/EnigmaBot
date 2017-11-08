@@ -29,6 +29,8 @@ public class JokeCommand implements ISlackBotCommand {
 
 	private ArrayList<String[]> jokes;
 
+	private boolean initComplete = true;
+
 	public JokeCommand() {
 
 		jokes = new ArrayList<String []>();
@@ -57,6 +59,8 @@ public class JokeCommand implements ISlackBotCommand {
 
 			stream.close();
 
+			initComplete = true;
+
 		} catch (FileNotFoundException e) {
 			System.err.println("ERROR: jokes file '" + JOKES_FILE + "' doesn't exist");
 			e.printStackTrace();
@@ -82,9 +86,19 @@ public class JokeCommand implements ISlackBotCommand {
 		return CMD_PATTERN;
 	}
 
+	@Override
+	public boolean isInitComplete() {
+		return initComplete;
+	}
+
 	// Look up a joke - random index into list of jokes
 	@Override
 	public boolean executeCommand(Slack slackInstance, String apiToken, SlackMessage message) {
+
+		if (false == initComplete) {
+			return false;
+		}
+
 		int index = (new Random()).nextInt(numJokes);
 		String []jokeParts = jokes.get(index);
 

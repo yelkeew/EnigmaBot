@@ -36,6 +36,8 @@ public class PictureCommand implements ISlackBotCommand {
 	private static String key = null;
 	private static String secret = null;
 
+	private boolean initComplete = false;
+
 	public PictureCommand() {
 		try {
 			FileInputStream fis = new FileInputStream(new File(FLICKR_PROPERTIES_FILE));
@@ -43,6 +45,8 @@ public class PictureCommand implements ISlackBotCommand {
 			props.load(fis);
 			key = props.getProperty("key");
 			secret = props.getProperty("secret");
+
+			initComplete = true;
 		} catch (FileNotFoundException e) {
 			System.err.println("ERROR: properties file '" + FLICKR_PROPERTIES_FILE + "' doesn't exist");
 			e.printStackTrace();
@@ -68,7 +72,17 @@ public class PictureCommand implements ISlackBotCommand {
 	}
 
 	@Override
+	public boolean isInitComplete() {
+		return initComplete;
+	}
+
+	@Override
 	public boolean executeCommand(Slack slackInstance, String apiToken, SlackMessage message) {
+
+		if (false == initComplete) {
+			return false;
+		}
+
 		String cmdSubstr = "icture ";  // remove initial char to resolve potential case sensitivity problem
 		String text = message.getText();
 		String arg = null;

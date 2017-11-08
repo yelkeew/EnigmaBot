@@ -1,9 +1,13 @@
+/*
+ * Class to segregate the main() method from the logic in the primary EngimaBot class
+ */
 package com.instavector.slackbot;
 
 public class EnigmaBotMain {
 
 	public static void main(String[] args) {
 
+		// Make sure the bot shuts down properly when the application exits
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
@@ -16,8 +20,11 @@ public class EnigmaBotMain {
 
 		EnigmaBot bot = null;
 		try {
-
 			bot = EnigmaBot.getInstance();
+			if (false == bot.isInitComplete()) {
+				System.err.println("ERROR: couldn't intialize bot");
+				System.exit(1);
+			}
 
 			if (false == bot.start()) {
 				System.err.println("ERROR: couldn't start bot");
@@ -29,10 +36,7 @@ public class EnigmaBotMain {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
-			bot.stop();
 		}
-
 	}
 
 }
