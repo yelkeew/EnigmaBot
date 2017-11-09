@@ -28,6 +28,7 @@ public class EnigmaBotMain {
 
 			if (false == bot.start()) {
 				System.err.println("ERROR: couldn't start bot");
+				System.exit(1);
 			}
 
 			// stay alive while the bot is listening for commands
