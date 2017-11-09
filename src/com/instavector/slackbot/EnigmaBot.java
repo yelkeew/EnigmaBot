@@ -20,12 +20,15 @@ import javax.websocket.DeploymentException;
 import org.reflections.Reflections;
 
 import com.github.seratch.jslack.Slack;
+import com.github.seratch.jslack.api.methods.SlackApiException;
+import com.github.seratch.jslack.api.methods.request.users.UsersListRequest;
+import com.github.seratch.jslack.api.methods.response.users.UsersListResponse;
+import com.github.seratch.jslack.api.model.User;
 import com.github.seratch.jslack.api.rtm.RTMClient;
 import com.github.seratch.jslack.api.rtm.RTMMessageHandler;
 import com.instavector.slackbot_command.ISlackBotCommand;
 import com.instavector.slackmessage.SlackMessage;
 import com.instavector.slackmessage.SlackMessageFactory;
-
 
 /**
  * A simple Slack Bot that implements a few commands.
@@ -35,6 +38,9 @@ public class EnigmaBot implements ISlackBotCommand {
 	public static final String API_PROPERTIES_FILE = ".api-token";
 
 	private static final String COMMANDS_PACKAGE = "com.instavector.slackbot_command";
+
+	// This has to agree with the name you give the bot in the Slack app directory
+	private static final String BOT_NAME = "enigmabot";
 
 	private boolean initComplete = false;
 
@@ -124,7 +130,6 @@ public class EnigmaBot implements ISlackBotCommand {
 
 		for (Class<? extends ISlackBotCommand> c: (new Reflections(COMMANDS_PACKAGE)).getSubTypesOf(ISlackBotCommand.class)) {
 			try {
-				System.out.println("Initializing cmd: " + c.getSimpleName());
 				ISlackBotCommand cmd = c.newInstance();
 				if (true == cmd.isInitComplete()) {
 					slackCommands.add(cmd);
@@ -155,6 +160,11 @@ public class EnigmaBot implements ISlackBotCommand {
 		return slackCommands;
 	}
 
+	// Parse command by checking against command reg-ex (public to support unit testing)
+	public boolean matchCommand(ISlackBotCommand command, String text) {
+		return text.matches(command.getCommandPattern());
+	}
+
 	// Start up the bot
 	public boolean start() {
 
@@ -167,6 +177,32 @@ public class EnigmaBot implements ISlackBotCommand {
 			slack = new Slack();
 			rtmClient = slack.rtm(apiToken);
 
+			// Determine the bot's user ID to avoid reacting to our own responses
+			UsersListRequest req = UsersListRequest.builder().token(apiToken).presence(0).build();
+			try {
+				UsersListResponse response = slack.methods().usersList(req);
+				if (response.isOk()) {
+					List<User> members = response.getMembers();
+					for (User m: members) {
+						if (BOT_NAME.equals(m.getName())) {
+							botUserId = m.getId();
+							break;
+						}
+					}
+					if (null == botUserId) {
+						System.err.println("ERROR: couldn't get bot user ID");
+						return false;
+					}
+				} else {
+					System.err.println("ERROR: couldn't get list of Slack users");
+					return false;
+				}
+
+			} catch (SlackApiException e) {
+				e.printStackTrace();
+				return false;
+			}
+
 			// The main processing loop for the bot - receives a message from Slack, parses, and executes
 			rtmClient.addMessageHandler(new RTMMessageHandler() {
 				@Override
@@ -175,13 +211,6 @@ public class EnigmaBot implements ISlackBotCommand {
 					SlackMessage msg = SlackMessageFactory.CreateSlackMessageObject(messageContents);
 					if (null == msg) {
 						System.err.println("ERROR: couldn't deserialize Slack message");
-						return;
-					}
-
-					// Presence change message appears to be bot coming/going; collect user ID to avoid
-					// reacting to our own responses
-					if (SlackMessage.MSG_TYPE_PRESENCE_CHANGE.equals(msg.getType())) {
-						botUserId = msg.getUser();
 						return;
 					}
 
@@ -202,7 +231,8 @@ public class EnigmaBot implements ISlackBotCommand {
 								return;
 							}
 						}
-						if (text.matches(c.getCommandPattern())) {
+
+						if (matchCommand(c, text)) {
 							if (false == c.executeCommand(slack, apiToken, msg)) {
 								System.err.println("ERROR: failed to execute \"" + c.getCommandName() + "\" command");
 							}
@@ -242,6 +272,10 @@ public class EnigmaBot implements ISlackBotCommand {
 
 	public boolean isRunning() {
 		return running;
+	}
+
+	public String getBotUserId() {
+		return botUserId;
 	}
 
 	/*
