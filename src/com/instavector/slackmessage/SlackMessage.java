@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName;
 public class SlackMessage {
 
 	private String type;
+	private String presence;
 	private String title;
 	private String subtitle;
 	private String msg;
@@ -29,6 +30,9 @@ public class SlackMessage {
 	public static final String MSG_TYPE_USER_TYPING = "typing";
 	public static final String MSG_TYPE_MESSAGE = "message";
 
+	public static final String MSG_PRESENCE_ACTIVE = "active";
+	public static final String MSG_PRESENCE_AWAY = "away";
+
 
 	public SlackMessage() {
 	}
@@ -42,6 +46,14 @@ public class SlackMessage {
 		this.type = type;
 	}
 
+
+	public String getPresence() {
+		return presence;
+	}
+
+	public void setPresence(String presence) {
+		this.presence = presence;
+	}
 
 	public String getTitle() {
 		return title;
