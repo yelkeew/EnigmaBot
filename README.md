@@ -32,6 +32,10 @@ The classes represented in the diagram above:
 EnigmaBot uses Maven.  Run `mvn package` to build the project.   
 
 ## Test
+### Unit Tests
+Unit tests are disabled by default.  Unless external service API keys are populated in the properties files the tests will fail.  As the API keys should be kept secret, the properties files are not committed to source control.  To use unit tests, populate the properties files as described in the first step of the manual testing section below and run `mvn -DskipTests=false test`.
+
+### Manual Testing
  1. Populate "*-token" properties files in the project directory
     * .api-token: [Slack API token](https://api.slack.com/bot-users), `apiToken = xxxxxxxxxx`
     * .weather-token: [Open Weather Map token](http://openweathermap.org/appid), `appId = xxxxxxxxxx`
@@ -44,6 +48,8 @@ EnigmaBot uses Maven.  Run `mvn package` to build the project.
  1. Create Slack channel for testing, e.g., "bot-testing" or direct-message the bot
  1. Invite bot to channel, `/invite @enigma-bot`
  1. Send a `list` message to see a list of commands supported by the bot
+
+**Beware** - when using the "picture" command to retrieve images from Flickr, you are reliant upon the tags placed on the images by photographers.  You may receive images you believe to be irrelevant or inappropriate.  While this bot does request "safe" images, it has no control over the actual content of those images.
 
 ## TODO
 1. Add environment variable support for base directory in which to look for property files
