@@ -1,7 +1,7 @@
 package com.instavector.slackbot;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;

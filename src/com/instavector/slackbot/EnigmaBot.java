@@ -262,7 +262,7 @@ public class EnigmaBot implements ISlackBotCommand {
 	// Stop the bot
 	public void stop() {
 		try {
-			System.out.println("Stopping...");
+			System.out.println(this.getClass().getSimpleName() + " is stopping");
 			rtmClient.close();  // calls disconnect()
 			running = false;
 		} catch (IOException e) {
