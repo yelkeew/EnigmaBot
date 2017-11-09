@@ -127,7 +127,7 @@ public class CveCommand implements ISlackBotCommand {
 		// Iterate over the returned documents and format each for inclusion in a Slack message
 		for (Document cveDoc: iter) {
 			if (0 != sb.length()) {
-				sb.append("------\n");  // Separator between records
+				sb.append("--------------------\n");  // Separator between records
 			}
 			String id = (String) cveDoc.get(ID_KEY);
 			sb.append("*ID*: <" + CVE_URI_BASE + id + "|" + id + ">\n");
@@ -135,8 +135,12 @@ public class CveCommand implements ISlackBotCommand {
 			sb.append("*References*:\n");
 
 			List<String> references = (List<String>)cveDoc.get(REFERENCES_KEY);
-			for (String r : references) {
-				sb.append("   " + r + "\n");
+			if (references.isEmpty()) {
+				sb.append("\u2022 none\n");
+			} else {
+				for (String ref : references) {
+					sb.append("\u2022 " + ref + "\n");
+				}
 			}
 		}
 
