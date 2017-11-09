@@ -192,8 +192,10 @@ public class EnigmaBot implements ISlackBotCommand {
 							return;
 						}
 						// Ignore our own messages, in case a response contains text that matches a command pattern
-						if (botUserId.equals(msg.getUser())) {
-							return;
+						if (null != botUserId) {
+							if (botUserId.equals(msg.getUser())) {
+								return;
+							}
 						}
 						if (text.matches(c.getCommandPattern())) {
 							if (false == c.executeCommand(slack, apiToken, msg)) {
