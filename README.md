@@ -12,7 +12,7 @@ Java-based Slack Bot that responds to a few simple commands
 1. Integrate Travis CI to build and test the project
 
 ## Design
-A UML class diagram of the EnigmaBot source code is shown below:
+A [UML class diagram](https://github.com/yelkeew/EnigmaBot/blob/master/classes.jpg) of the EnigmaBot source code is shown below:
 
 ![UML](classes.jpg)
 (Class diagram generated from source using the [OjbectAid Eclipse Plugin](http://www.objectaid.com/).)
