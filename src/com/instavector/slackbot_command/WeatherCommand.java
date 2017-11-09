@@ -30,7 +30,7 @@ public class WeatherCommand implements ISlackBotCommand {
 
 	private static final String WEATHER_URI_ZIP = "http://api.openweathermap.org/data/2.5/weather?zip=";
 
-	private static final String WEATHER_PROPERTIES_FILE = ".weather-token";
+	public static final String WEATHER_PROPERTIES_FILE = ".weather-token";
 
 	private static String appId = null;
 

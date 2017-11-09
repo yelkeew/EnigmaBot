@@ -12,7 +12,7 @@ public class EnigmaBotMain {
 			@Override
 			public void run() {
 				EnigmaBot bot = EnigmaBot.getInstance();
-				if (true == bot.isInitComplete()) {
+				if (true == bot.isRunning()) {
 					bot.stop();
 				}
 			}

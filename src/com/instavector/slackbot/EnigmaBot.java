@@ -32,11 +32,13 @@ import com.instavector.slackmessage.SlackMessageFactory;
  */
 public class EnigmaBot implements ISlackBotCommand {
 
-	private static final String API_PROPERTIES_FILE = ".api-token";
+	public static final String API_PROPERTIES_FILE = ".api-token";
 
 	private static final String COMMANDS_PACKAGE = "com.instavector.slackbot_command";
 
 	private boolean initComplete = false;
+
+	private boolean running = false;
 
 	// Slack API token
 	private String apiToken = null;
@@ -50,7 +52,6 @@ public class EnigmaBot implements ISlackBotCommand {
 	private ArrayList<ISlackBotCommand> slackCommands = null;
 
 	private String botUserId = null;
-
 
 	// Attributes for listing Slack Bot commands
 	private static final String LIST_CMD_NAME = "list";
@@ -150,6 +151,10 @@ public class EnigmaBot implements ISlackBotCommand {
 		return true;
 	}
 
+	public List<ISlackBotCommand> getCommands() {
+		return slackCommands;
+	}
+
 	// Start up the bot
 	public boolean start() {
 
@@ -217,6 +222,7 @@ public class EnigmaBot implements ISlackBotCommand {
 			return false;
 		}
 
+		running = true;
 		System.out.println(this.getClass().getSimpleName() + " is running");
 
 		return true;
@@ -228,9 +234,14 @@ public class EnigmaBot implements ISlackBotCommand {
 		try {
 			System.out.println("Stopping...");
 			rtmClient.close();  // calls disconnect()
+			running = false;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public boolean isRunning() {
+		return running;
 	}
 
 	/*

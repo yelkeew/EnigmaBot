@@ -13,7 +13,7 @@ import com.instavector.slackmessage.SlackMessage;
 
 public class JokeCommand implements ISlackBotCommand {
 
-	private static final String JOKES_FILE = "jokes.txt";
+	public static final String JOKES_FILE = "jokes.txt";
 
 	private static final String CMD_NAME = "joke";
 

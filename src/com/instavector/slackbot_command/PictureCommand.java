@@ -31,7 +31,7 @@ public class PictureCommand implements ISlackBotCommand {
 
 	private static final String CMD_PATTERN = "[Pp]icture.*";
 
-	private static final String FLICKR_PROPERTIES_FILE = ".flickr-token";
+	public static final String FLICKR_PROPERTIES_FILE = ".flickr-token";
 
 	private static String key = null;
 	private static String secret = null;
