@@ -1,5 +1,6 @@
 package com.instavector.slackbot_command;
 
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -30,6 +31,7 @@ public class CveCommand implements ISlackBotCommand {
 	private static final String CVE_COLL_NAME = "cves";
 
 	private static final String ID_KEY = "id";
+	private static final String PUBLISHED_KEY = "Published";
 	private static final String SUMMARY_KEY = "summary";
 	private static final String REFERENCES_KEY = "references";
 
@@ -113,8 +115,8 @@ public class CveCommand implements ISlackBotCommand {
 
 		StringBuilder sb = new StringBuilder();
 
-		// Look up CVE ID in the database
-		FindIterable<Document> iter = coll.find(query).limit(10);
+		// Look up CVE ID in the database; sort by newest first using published date
+		FindIterable<Document> iter = coll.find(query).sort(new Document(PUBLISHED_KEY, -1)).limit(10);
 		if (null == iter.first()) {
 			ISlackBotCommand.SendResponse(
 					slackInstance,
@@ -131,6 +133,7 @@ public class CveCommand implements ISlackBotCommand {
 			}
 			String id = (String) cveDoc.get(ID_KEY);
 			sb.append("*ID*: <" + CVE_URI_BASE + id + "|" + id + ">\n");
+			sb.append("*Published*: " + ((Date) cveDoc.get(PUBLISHED_KEY)).toString() + "\n");
 			sb.append("*Summary*: " + (String) cveDoc.get(SUMMARY_KEY) + "\n");
 			sb.append("*References*:\n");
 
