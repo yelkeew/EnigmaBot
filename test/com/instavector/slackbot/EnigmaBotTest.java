@@ -41,7 +41,7 @@ public class EnigmaBotTest {
 		assertTrueVerbose("EnigmaBot initialized", bot.isInitComplete());
 		bot.start();
 		assertTrueVerbose("EnigmaBot running", bot.isRunning());
-		assertNotNullVerbose("EnigmaBot User ID", bot.getBotUserId());
+		assertNotNullVerbose("EnigmaBot determine user ID", bot.getBotUserId());
 		bot.stop();
 		assertTrueVerbose("EnigmaBot stopped", !bot.isRunning());
 	}
@@ -82,6 +82,7 @@ public class EnigmaBotTest {
 	public void test_04_CommandParsing() {
 		System.out.println("\nMETHOD: " + new Object(){}.getClass().getEnclosingMethod().getName());
 		final String contentToken = "__CONTENT__";
+		// Test using string copied from Slack message
 		String slackMsgTemplate = "{" +
 				"\"type\":\"desktop_notification\"," +
 				"\"title\":\"SlackGroupName\"," +
