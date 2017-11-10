@@ -137,6 +137,7 @@ public class CveCommand implements ISlackBotCommand {
 			sb.append("*Summary*: " + (String) cveDoc.get(SUMMARY_KEY) + "\n");
 			sb.append("*References*:\n");
 
+			@SuppressWarnings("unchecked")
 			List<String> references = (List<String>)cveDoc.get(REFERENCES_KEY);
 			if (references.isEmpty()) {
 				sb.append("\u2022 none\n");
