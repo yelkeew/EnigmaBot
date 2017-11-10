@@ -21,18 +21,29 @@ import com.instavector.slackmessage.SlackMessageFactory;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class EnigmaBotTest {
 
+	private static void assertTrueVerbose(String message, boolean condition) {
+		System.out.println("TEST: " + message);
+		assertTrue(message, condition);
+	}
+
+	private static void assertNotNullVerbose(String message, Object object) {
+		System.out.println("TEST: " + message);
+		assertNotNull(message, object);
+	}
+
 	/*
 	 * Test bot startup & shutdown
 	 */
 	@Test
 	public void test_01_EnigmaBotStartStop() {
+		System.out.println("\nMETHOD: " + new Object(){}.getClass().getEnclosingMethod().getName());
 		EnigmaBot bot = EnigmaBot.getInstance();
-		assertTrue("EnigmaBot initialized", bot.isInitComplete());
+		assertTrueVerbose("EnigmaBot initialized", bot.isInitComplete());
 		bot.start();
-		assertTrue("EnigmaBot running", bot.isRunning());
-		assertNotNull("EnigmaBot User ID", bot.getBotUserId());
+		assertTrueVerbose("EnigmaBot running", bot.isRunning());
+		assertNotNullVerbose("EnigmaBot User ID", bot.getBotUserId());
 		bot.stop();
-		assertTrue("EnigmaBot stopped", !bot.isRunning());
+		assertTrueVerbose("EnigmaBot stopped", !bot.isRunning());
 	}
 
 	/*
@@ -40,10 +51,11 @@ public class EnigmaBotTest {
 	 */
 	@Test
 	public void test_02_PropertiesFiles() {
-		assertTrue("Slack API key file", Files.exists(Paths.get(EnigmaBot.API_PROPERTIES_FILE)));
-		assertTrue("Jokes text file", Files.exists(Paths.get(JokeCommand.JOKES_FILE)));
-		assertTrue("Flickr API key file", Files.exists(Paths.get(PictureCommand.FLICKR_PROPERTIES_FILE)));
-		assertTrue("OpenWeatherMap API key file", Files.exists(Paths.get(WeatherCommand.WEATHER_PROPERTIES_FILE)));
+		System.out.println("\nMETHOD: " + new Object(){}.getClass().getEnclosingMethod().getName());
+		assertTrueVerbose("Slack API key file", Files.exists(Paths.get(EnigmaBot.API_PROPERTIES_FILE)));
+		assertTrueVerbose("Jokes text file", Files.exists(Paths.get(JokeCommand.JOKES_FILE)));
+		assertTrueVerbose("Flickr API key file", Files.exists(Paths.get(PictureCommand.FLICKR_PROPERTIES_FILE)));
+		assertTrueVerbose("OpenWeatherMap API key file", Files.exists(Paths.get(WeatherCommand.WEATHER_PROPERTIES_FILE)));
 	}
 
 	/*
@@ -51,14 +63,15 @@ public class EnigmaBotTest {
 	 */
 	@Test
 	public void test_03_Commands() {
+		System.out.println("\nMETHOD: " + new Object(){}.getClass().getEnclosingMethod().getName());
 		EnigmaBot bot = EnigmaBot.getInstance();
 		List<ISlackBotCommand> commands = bot.getCommands();
-		assertTrue("Slack commands exist", 0 != commands.size());
+		assertTrueVerbose("Slack commands exist", 0 != commands.size());
 		for (ISlackBotCommand c: commands) {
-			assertTrue("Command initialized: " + c.getClass().getSimpleName(), c.isInitComplete());
-			assertTrue("Command name: " + c.getClass().getSimpleName(), !c.getCommandName().isEmpty());
-			assertTrue("Command description: " + c.getClass().getSimpleName(), !c.getCommandDescription().isEmpty());
-			assertTrue("Command pattern: " + c.getClass().getSimpleName(), !c.getCommandPattern().isEmpty());
+			assertTrueVerbose("Command initialized: " + c.getClass().getSimpleName(), c.isInitComplete());
+			assertTrueVerbose("Command name: " + c.getClass().getSimpleName(), !c.getCommandName().isEmpty());
+			assertTrueVerbose("Command description: " + c.getClass().getSimpleName(), !c.getCommandDescription().isEmpty());
+			assertTrueVerbose("Command pattern: " + c.getClass().getSimpleName(), !c.getCommandPattern().isEmpty());
 		}
 	}
 
@@ -67,6 +80,7 @@ public class EnigmaBotTest {
 	 */
 	@Test
 	public void test_04_CommandParsing() {
+		System.out.println("\nMETHOD: " + new Object(){}.getClass().getEnclosingMethod().getName());
 		final String contentToken = "__CONTENT__";
 		String slackMsgTemplate = "{" +
 				"\"type\":\"desktop_notification\"," +
@@ -100,7 +114,7 @@ public class EnigmaBotTest {
 					break;
 				}
 			}
-			assertTrue("Match command: " + cmdMsg, matched);
+			assertTrueVerbose("Match command: " + cmdMsg, matched);
 		}
 
 		// Reject bad message content
@@ -116,7 +130,7 @@ public class EnigmaBotTest {
 					break;
 				}
 			}
-			assertTrue("Unrecognized command: " + cmdMsg, !matched);
+			assertTrueVerbose("Unrecognized command: x" + cmdMsg, !matched);
 		}
 	}
 }
