@@ -104,6 +104,7 @@ public class PictureCommand implements ISlackBotCommand {
 		searchParameters.setTags(argParts);
 		searchParameters.setSafeSearch(Flickr.SAFETYLEVEL_SAFE);  // No naughty pictures
 
+		Photo photo = null;
 		File photoFile = null;
 		try {
 			PhotoList<Photo> photoList = flickr.getPhotosInterface().search(searchParameters, 0, 0);
@@ -118,7 +119,7 @@ public class PictureCommand implements ISlackBotCommand {
 					"Getting a picture for your request...");
 
 			// Pick a random picture from the returned list
-			Photo photo = photoList.get((new Random()).nextInt(photoList.size()));
+			photo = photoList.get((new Random()).nextInt(photoList.size()));
 
 			// Download and save off the image
 			BufferedImage img = flickr.getPhotosInterface().getImage(photo, Size.MEDIUM);
@@ -143,6 +144,7 @@ public class PictureCommand implements ISlackBotCommand {
 					.file(photoFile)
 					.filename(arg + ".jpg")
 					.title(arg)
+					.initialComment(photo.getUrl())
 					.channels(chList)
 					.build();
 			FilesUploadResponse r = slackInstance.methods().filesUpload(req);
