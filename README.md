@@ -8,8 +8,7 @@ Java-based Slack Bot that responds to a few simple commands
 1. Have a name and avatar
 1. Provide a README file for the project
 1. Implement unit tests
-1. Integrate tests of service layer
-1. Integrate Travis CI to build and test the project
+1. Integrate Travis CI
 
 ## Design
 A [UML class diagram](https://github.com/yelkeew/EnigmaBot/blob/master/classes.jpg) of the EnigmaBot source code is shown below:
